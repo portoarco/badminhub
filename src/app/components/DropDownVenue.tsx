@@ -8,27 +8,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { IVenue } from "../types/venue";
 
-const listVenue = [
-  {
-    id: 1,
-    venue: "Lapangan TOR",
-  },
-  {
-    id: 2,
-    venue: "Lapangan Surabaya",
-  },
-  {
-    id: 3,
-    venue: "Lapangan Atmajaya",
-  },
-];
+interface IDropDownVenueList {
+  venueList: IVenue[];
+}
 
-export default function DropDownVenueList() {
+export default function DropDownVenueList({ venueList }: IDropDownVenueList) {
   const [selectedVenue, setSelectedVenue] = useState<string | undefined>(
     undefined
   );
@@ -49,14 +38,14 @@ export default function DropDownVenueList() {
           <DropdownMenuContent className="p-2">
             <DropdownMenuLabel>Daftar Lapangan</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {listVenue.map((venue, idx) => (
+            {venueList.map((venue, idx) => (
               <DropdownMenuItem
                 key={idx}
                 onSelect={(selectedVenue) => {
-                  setSelectedVenue(venue.venue);
+                  setSelectedVenue(venue.name);
                 }}
               >
-                {venue.venue}
+                {venue.name}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

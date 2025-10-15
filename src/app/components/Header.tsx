@@ -9,8 +9,13 @@ import {
 import Image from "next/image";
 import DateandTimePicker from "./DateandTimePicker";
 import DropDownVenueList from "./DropDownVenue";
+import { IVenue } from "../types/venue";
 
-export default function Header() {
+interface IHeader {
+  venueListData: IVenue[];
+}
+
+export default function Header({ venueListData }: IHeader) {
   return (
     <header>
       <div></div>
@@ -33,16 +38,16 @@ export default function Header() {
               secara praktis, cepat, dan sesuai dengan jadwal Anda
             </p>
           </div>
-          <div className="w-1/4 p-3  rounded-xl  bg-gradient-to-r from-teal-400 to-yellow-200">
+          <div className="w-1/4 p-3  rounded-xl bg-gray-300/50">
             <Card className=" ">
               <CardHeader>
-                <CardTitle className="text-center text-2xl">
+                <CardTitle className="text-center text-3xl font-semibold">
                   Cek Ketersediaan
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <form className="flex flex-col gap-y-4">
-                  <DropDownVenueList />
+                  <DropDownVenueList venueList={venueListData} />
                   <DateandTimePicker />
                 </form>
               </CardContent>
