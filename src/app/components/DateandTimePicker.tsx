@@ -51,10 +51,10 @@ export default function DateandTimePicker() {
           className=" w-1/2 bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
         />
       </div>
-      <div className="flex justify-between gap-3">
+      {/* <div className="flex justify-between gap-3">
         <Label>Durasi Pemakaian</Label>
         <Input type="number" placeholder="3 jam" className="w-1/2"></Input>
-      </div>
+      </div> */}
     </div>
   );
 }

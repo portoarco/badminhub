@@ -10,7 +10,7 @@ interface IVenueDetailsPage {
 }
 
 export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
-  const { name } = params;
+  const { name } = await params;
   const res = await apiCall.get(`/venue?where=name%3D%27${name}%27`);
   const venueDetails: IVenue | undefined = res.data[0];
 

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -35,6 +36,12 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-x-4">
+          <button className="relative cursor-pointer">
+            <ShoppingCart className="size-6" />
+            <div className="absolute -top-1 -right-2 bg-red-500 w-4 h-4 rounded-full">
+              <p className="text-[10px] text-white">0</p>
+            </div>
+          </button>
           <Button className=" bg-[#274d8f] hover:bg-[#18315b] cursor-pointer p-5.5 rounded-full text-[15px]">
             Contact Us
           </Button>

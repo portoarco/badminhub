@@ -69,7 +69,7 @@ export default function MainContent({ venueList }: IMainContent) {
                     </p>
                   </div>
                   <Button className="bg-gradient-to-br from-amber-500 to-pink-500 cursor-pointer rounded-full text-xs">
-                    <Zap /> Instant Booking
+                    <Zap /> Booking Now
                   </Button>
                 </div>
               </CardContent>
