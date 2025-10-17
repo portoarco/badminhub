@@ -5,6 +5,7 @@ import { ChevronDown, MapPin, Zap } from "lucide-react";
 import Image from "next/image";
 import { IVenue } from "../types/venue";
 import { useRouter } from "next/navigation";
+import { apiCall } from "@/helper/apiCall";
 
 interface IMainContent {
   venueList: IVenue[];
@@ -49,7 +50,7 @@ export default function MainContent({ venueList }: IMainContent) {
                     className="size-6"
                   />
                   <div className="text-sm mt-1 flex gap-2 ">
-                    <p>{venue.rating}</p>
+                    <p>{venue.rating?.toFixed(2) ?? "0.00"}</p>
                     <p className="text-gray-500">({venue.reviewer}) Reviews</p>
                     <p className="flex items-center text-gray-500">
                       <MapPin className="size-4" />
@@ -69,7 +70,7 @@ export default function MainContent({ venueList }: IMainContent) {
                   </div>
                   <Button
                     className="bg-gradient-to-br from-amber-500 to-pink-500 cursor-pointer rounded-full text-xs"
-                    onClick={() => router.push(`/venue-details/${venue.name}`)}
+                    onClick={() => router.push(`/venue-details/${venue.id}`)}
                   >
                     <Zap /> Booking Now
                   </Button>

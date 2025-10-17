@@ -6,13 +6,14 @@ import Image from "next/image";
 import SlotPicker from "../components/slotPicker";
 
 interface IVenueDetailsPage {
-  params: { name: string };
+  params: { id: number };
 }
 
 export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
-  const { name } = params;
-  const res = await apiCall.get(`/venue?where=name%3D%27${name}%27`);
-  const venueDetails: IVenue | undefined = res.data[0];
+  const { id } = params;
+  const res = await apiCall.get(`/venue/${id}`);
+  console.log(res.data);
+  const venueDetails: IVenue | undefined = res.data;
 
   return (
     <section className="px-30 py-10 min-h-screen bg-gray-100/30">
@@ -41,7 +42,7 @@ export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
                 className="size-7"
               />
               <div className="text-md mt-1 flex gap-2 ">
-                <p>{venueDetails?.rating}</p>
+                <p>{venueDetails?.rating?.toFixed(2)}</p>
                 <p className="text-gray-500">
                   ({venueDetails?.reviewer}) Reviews
                 </p>

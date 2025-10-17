@@ -1,4 +1,5 @@
 "use client";
+import { useVenueStore } from "@/app/store/venue-store";
 import { IVenue } from "@/app/types/venue";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -7,24 +8,25 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { convertTimeToISO } from "@/helper/convertTimeToISO";
 import { generateDates } from "@/helper/generateDates";
 import { CalendarDays, ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const dummySlot = [
-  { id: 1, isBooked: false, start_time: "08.00", end_time: "09.00" },
-  { id: 2, isBooked: false, start_time: "09.00", end_time: "10.00" },
-  { id: 3, isBooked: false, start_time: "10.00", end_time: "11.00" },
-  { id: 4, isBooked: true, start_time: "11.00", end_time: "12.00" },
-  { id: 5, isBooked: true, start_time: "12.00", end_time: "13.00" },
-  { id: 6, isBooked: true, start_time: "13.00", end_time: "14.00" },
-  { id: 7, isBooked: false, start_time: "14.00", end_time: "15.00" },
-  { id: 8, isBooked: false, start_time: "15.00", end_time: "16.00" },
-  { id: 9, isBooked: false, start_time: "16.00", end_time: "17.00" },
-  { id: 10, isBooked: false, start_time: "17.00", end_time: "18.00" },
-  { id: 11, isBooked: true, start_time: "18.00", end_time: "19.00" },
-  { id: 12, isBooked: true, start_time: "19.00", end_time: "20.00" },
-  { id: 13, isBooked: true, start_time: "20.00", end_time: "21.00" },
+const timeSlots = [
+  { id: 1, start_time: "08.00", end_time: "09.00" },
+  { id: 2, start_time: "09.00", end_time: "10.00" },
+  { id: 3, start_time: "10.00", end_time: "11.00" },
+  { id: 4, start_time: "11.00", end_time: "12.00" },
+  { id: 5, start_time: "12.00", end_time: "13.00" },
+  { id: 6, start_time: "13.00", end_time: "14.00" },
+  { id: 7, start_time: "14.00", end_time: "15.00" },
+  { id: 8, start_time: "15.00", end_time: "16.00" },
+  { id: 9, start_time: "16.00", end_time: "17.00" },
+  { id: 10, start_time: "17.00", end_time: "18.00" },
+  { id: 11, start_time: "18.00", end_time: "19.00" },
+  { id: 12, start_time: "19.00", end_time: "20.00" },
+  { id: 13, start_time: "20.00", end_time: "21.00" },
 ];
 
 interface ISlotPicker {
@@ -32,6 +34,7 @@ interface ISlotPicker {
 }
 
 export default function SlotPicker({ venueData }: ISlotPicker) {
+  console.log(venueData);
   const [selectedDate, setSelectedDate] = useState(
     generateDates(new Date(), 10)[0].fullDate
   );
@@ -40,18 +43,37 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
   const [date, setDate] = useState<Date | undefined>(undefined);
 
   //
-  const [selectedSlot, setSelectedSlot] = useState();
+  const { selectedVenueSlots, addOrRemoveSlot } = useVenueStore();
 
   //
-  const chooseSlot = (venueId: any, start_date: string, end_date: string) => {
-    console.log(venueId);
-    console.log(start_date);
-    console.log(end_date);
+  const chooseSlot = (
+    slotId: number,
+    venueId: string,
+    start_time: string,
+    end_time: string
+  ) => {
+    const startTimeISO = `${selectedDate}T${convertTimeToISO(start_time)}Z`;
+    const endTimeISO = `${selectedDate}T${convertTimeToISO(end_time)}Z`;
+
+    const newSlot = {
+      slotId,
+      venueId,
+      venueName: venueData.name,
+      venueCity: venueData.city,
+      venuePrice: venueData.price,
+      start_time: startTimeISO,
+      end_time: endTimeISO,
+      date: selectedDate,
+    };
+    addOrRemoveSlot(newSlot);
   };
 
   useEffect(() => {
     setDates(generateDates(new Date(selectedDate), 10));
   }, [date]);
+
+  // cek dari db apakah sudah terbooked atau belum
+
   return (
     <section>
       <h1 className="text-3xl font-medium"> Choose Your Time</h1>
@@ -59,10 +81,9 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
         <div className="flex gap-x-10">
           {dates.map((item) => (
             <button
-              key={item.id}
+              key={`${item.id}-${item.fullDate}`}
               onClick={() => {
                 setSelectedDate(item.fullDate);
-                // setDate(new Date(item.fullDate));
               }}
               className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl min-w-[70px] transition-all cursor-pointer
               ${
@@ -119,35 +140,46 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
           </div>
         </div>
       </section>
-      <section className="w-full mt-5 rounded-lg  inset-shadow-2xs shadow-md bg-white p-5">
+      <section className="w-full mt-5 rounded-lg shadow-md bg-white p-5">
         <div className="grid grid-cols-6 gap-5">
-          {dummySlot.map((slot, idx) => (
-            <button
-              key={slot.id}
-              className={` ${
-                slot.isBooked ? "bg-gray-100" : "bg-gray-300"
-              } p-5 rounded-xl shadow-xs cursor-pointer`}
-              onClick={() =>
-                chooseSlot(venueData.objectId, slot.start_time, slot.end_time)
-              }
-              disabled={slot.isBooked}
-            >
-              <p
-                className={`${
-                  slot.isBooked ? "text-gray-400" : "text-black  "
-                } text-sm mb-2 `}
+          {timeSlots.map((slot) => {
+            const isSelected = selectedVenueSlots.some(
+              (s: any) => s.slotId === slot.id && s.date === selectedDate
+            );
+
+            return (
+              <button
+                key={`${slot.id}-${selectedDate}`}
+                className={`p-5 rounded-xl shadow-xs cursor-pointer transition-all
+                  ${
+                    isSelected
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 hover:bg-blue-100"
+                  }`}
+                onClick={() =>
+                  chooseSlot(
+                    slot.id,
+                    venueData.id,
+                    slot.start_time,
+                    slot.end_time
+                  )
+                }
+                // disabled={slot.isBooked}
               >
-                {slot.isBooked ? "Booked" : "Available"}
-              </p>
-              <p
-                className={`${
-                  slot.isBooked ? "text-gray-400" : "text-black"
-                } text-lg font-medium`}
-              >
-                {slot.start_time} - {slot.end_time}
-              </p>
-            </button>
-          ))}
+                <p
+                  className={`text-sm mb-2 ${
+                    // slot.isBooked ? "text-gray-400" : "text-black"
+                    "text-black"
+                  }`}
+                >
+                  {isSelected ? "Selected" : "Available"}
+                </p>
+                <p className="text-lg font-medium">
+                  {slot.start_time} - {slot.end_time}
+                </p>
+              </button>
+            );
+          })}
         </div>
       </section>
     </section>

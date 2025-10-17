@@ -52,7 +52,7 @@ export default function Header({ venueListData }: IHeader) {
                 </form>
               </CardContent>
               <CardFooter>
-                <Button className="w-full bg-yellow-400">
+                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 cursor-pointer">
                   Cek Ketersediaan
                 </Button>
               </CardFooter>

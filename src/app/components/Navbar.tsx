@@ -6,9 +6,11 @@ import Link from "next/link";
 import { useState } from "react";
 import BookingList from "./BookingList";
 import { venueBookingCart } from "../data/dummyVenueBookingCart";
+import { useVenueStore } from "../store/venue-store";
 
 export default function Navbar() {
   const [openBookingList, setOpenBookingList] = useState(false);
+  const { selectedVenueSlots } = useVenueStore();
 
   return (
     <>
@@ -50,7 +52,7 @@ export default function Navbar() {
               <ShoppingCart className="size-6" />
               <div className="absolute -top-1 -right-2 bg-red-500 w-4 h-4 rounded-full">
                 <p className="text-[10px] text-white">
-                  {venueBookingCart.length}
+                  {selectedVenueSlots.length}
                 </p>
               </div>
             </button>
