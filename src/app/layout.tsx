@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import LayoutClient from "./layoutClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +21,7 @@ const poppinsFont = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "BadminHub | Indonesia's #1 Online Badminton Court Booking Platform",
+  title: "BadminHub - Indonesia's #1 Online Badminton Court Booking Platform",
   description: "Make your court reservation much easier!",
   icons: {
     icon: "/assets/logo-only.png",
@@ -37,9 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppinsFont.variable} antialiased`}
       >
-        <Navbar />
-        {children}
-        <Footer />
+        <LayoutClient>{children}</LayoutClient>
       </body>
     </html>
   );

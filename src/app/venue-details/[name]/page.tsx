@@ -10,7 +10,7 @@ interface IVenueDetailsPage {
 }
 
 export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
-  const { name } = await params;
+  const { name } = params;
   const res = await apiCall.get(`/venue?where=name%3D%27${name}%27`);
   const venueDetails: IVenue | undefined = res.data[0];
 
@@ -69,7 +69,7 @@ export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
         </div>
       </section>
       <section id="booking-picker" className="mt-10">
-        <SlotPicker />
+        <SlotPicker venueData={venueDetails!} />
       </section>
     </section>
   );

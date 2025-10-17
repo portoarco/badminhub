@@ -1,4 +1,5 @@
 "use client";
+import { IVenue } from "@/app/types/venue";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -26,13 +27,27 @@ const dummySlot = [
   { id: 13, isBooked: true, start_time: "20.00", end_time: "21.00" },
 ];
 
-export default function SlotPicker() {
+interface ISlotPicker {
+  venueData: IVenue;
+}
+
+export default function SlotPicker({ venueData }: ISlotPicker) {
   const [selectedDate, setSelectedDate] = useState(
     generateDates(new Date(), 10)[0].fullDate
   );
   const [dates, setDates] = useState(generateDates(new Date(), 10));
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+
+  //
+  const [selectedSlot, setSelectedSlot] = useState();
+
+  //
+  const chooseSlot = (venueId: any, start_date: string, end_date: string) => {
+    console.log(venueId);
+    console.log(start_date);
+    console.log(end_date);
+  };
 
   useEffect(() => {
     setDates(generateDates(new Date(selectedDate), 10));
@@ -107,30 +122,31 @@ export default function SlotPicker() {
       <section className="w-full mt-5 rounded-lg  inset-shadow-2xs shadow-md bg-white p-5">
         <div className="grid grid-cols-6 gap-5">
           {dummySlot.map((slot, idx) => (
-            <>
-              <button
-                key={idx}
-                className={` ${
-                  slot.isBooked ? "bg-gray-100" : "bg-gray-300"
-                } p-5 rounded-xl shadow-xs`}
-                disabled={slot.isBooked}
+            <button
+              key={slot.id}
+              className={` ${
+                slot.isBooked ? "bg-gray-100" : "bg-gray-300"
+              } p-5 rounded-xl shadow-xs cursor-pointer`}
+              onClick={() =>
+                chooseSlot(venueData.objectId, slot.start_time, slot.end_time)
+              }
+              disabled={slot.isBooked}
+            >
+              <p
+                className={`${
+                  slot.isBooked ? "text-gray-400" : "text-black  "
+                } text-sm mb-2 `}
               >
-                <p
-                  className={`${
-                    slot.isBooked ? "text-gray-400" : "text-black"
-                  } text-sm mb-2`}
-                >
-                  {slot.isBooked ? "Booked" : "Available"}
-                </p>
-                <p
-                  className={`${
-                    slot.isBooked ? "text-gray-400" : "text-black"
-                  } text-lg font-medium`}
-                >
-                  {slot.start_time} - {slot.end_time}
-                </p>
-              </button>
-            </>
+                {slot.isBooked ? "Booked" : "Available"}
+              </p>
+              <p
+                className={`${
+                  slot.isBooked ? "text-gray-400" : "text-black"
+                } text-lg font-medium`}
+              >
+                {slot.start_time} - {slot.end_time}
+              </p>
+            </button>
           ))}
         </div>
       </section>

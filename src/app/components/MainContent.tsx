@@ -27,7 +27,6 @@ export default function MainContent({ venueList }: IMainContent) {
             <Card
               key={idx}
               className="overflow-hidden p-0 gap-0 hover:shadow-lg transform duration-300 ease-in-out hover:scale-102 cursor-pointer"
-              onClick={() => router.push(`/venue-details/${venue.name}`)}
             >
               <div>
                 <Image
@@ -68,7 +67,10 @@ export default function MainContent({ venueList }: IMainContent) {
                       </span>
                     </p>
                   </div>
-                  <Button className="bg-gradient-to-br from-amber-500 to-pink-500 cursor-pointer rounded-full text-xs">
+                  <Button
+                    className="bg-gradient-to-br from-amber-500 to-pink-500 cursor-pointer rounded-full text-xs"
+                    onClick={() => router.push(`/venue-details/${venue.name}`)}
+                  >
                     <Zap /> Booking Now
                   </Button>
                 </div>

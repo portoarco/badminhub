@@ -41,7 +41,7 @@ export default function Header({ venueListData }: IHeader) {
           <div className="w-1/4 p-3  rounded-xl bg-gray-300/50">
             <Card className=" ">
               <CardHeader>
-                <CardTitle className="text-center text-3xl font-semibold">
+                <CardTitle className="text-center text-3xl font-medium">
                   Cek Ketersediaan
                 </CardTitle>
               </CardHeader>
