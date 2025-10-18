@@ -52,7 +52,10 @@ export default function Header({ venueListData }: IHeader) {
                 </form>
               </CardContent>
               <CardFooter>
-                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 cursor-pointer">
+                <Button
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 cursor-pointer"
+                  onClick={() => alert("Mohon maaf, fitur ini belum tersedia")}
+                >
                   Cek Ketersediaan
                 </Button>
               </CardFooter>

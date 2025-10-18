@@ -30,16 +30,36 @@ export default function Navbar() {
           <div className="flex items-center ">
             <ul className="flex gap-x-10">
               <li>
-                <Link href="#">Tentang Kami</Link>
+                <Link
+                  href="#"
+                  onClick={() => alert("Mohon maaf fitur ini belum tersedia")}
+                >
+                  Tentang Kami
+                </Link>
               </li>
               <li>
-                <Link href="#">Cari Lapangan</Link>
+                <Link
+                  href="#"
+                  onClick={() => alert("Mohon maaf fitur ini belum tersedia")}
+                >
+                  Cari Lapangan
+                </Link>
               </li>
               <li>
-                <Link href="#">Gabung Komunitas</Link>
+                <Link
+                  href="#"
+                  onClick={() => alert("Mohon maaf fitur ini belum tersedia")}
+                >
+                  Gabung Komunitas
+                </Link>
               </li>
               <li>
-                <Link href="#">Kontak Kami</Link>
+                <Link
+                  href="#"
+                  onClick={() => alert("Mohon maaf fitur ini belum tersedia")}
+                >
+                  Kontak Kami
+                </Link>
               </li>
             </ul>
           </div>
@@ -57,7 +77,12 @@ export default function Navbar() {
               </div>
             </button>
             <p className="text-4xl font-extralight text-gray-500">|</p>
-            <Button className="bg-[#274d8f] hover:bg-[#18315b] cursor-pointer p-5.5 rounded-full text-[15px]">
+            <Button
+              className="bg-[#274d8f] hover:bg-[#18315b] cursor-pointer p-5.5 rounded-full text-[15px]"
+              onClick={() =>
+                alert("Mohon maaf fitur login/register belum tersedia")
+              }
+            >
               Login/Daftar
             </Button>
           </div>

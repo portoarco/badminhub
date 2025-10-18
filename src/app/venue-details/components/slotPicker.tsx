@@ -34,7 +34,6 @@ interface ISlotPicker {
 }
 
 export default function SlotPicker({ venueData }: ISlotPicker) {
-  console.log(venueData);
   const [selectedDate, setSelectedDate] = useState(
     generateDates(new Date(), 10)[0].fullDate
   );

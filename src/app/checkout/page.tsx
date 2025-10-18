@@ -30,14 +30,18 @@ export default function CheckoutPage() {
     null
   );
 
+  const [token, setToken] = useState("");
+
   const router = useRouter();
   const inFirstNameRef = useRef<HTMLInputElement>(null);
   const inLastNameRef = useRef<HTMLInputElement>(null);
   const inEmailRef = useRef<HTMLInputElement>(null);
   const inPhoneRef = useRef<HTMLInputElement>(null);
+
   const keepSlot = async () => {
     try {
       const res = await apiCall.post("/venue/keep-slot", selectedVenueSlots);
+      console.log(res.data);
       if (!res) return alert("There is something wrong!");
     } catch (error) {
       console.log(error);
@@ -78,12 +82,12 @@ export default function CheckoutPage() {
     }
   };
 
-  const userVenuePayment = async () => {
+  const createTransaction = async () => {
     try {
-      const firstName = inFirstNameRef.current?.value;
-      const lastName = inLastNameRef.current?.value;
-      const email = inEmailRef.current?.value;
-      const phone = inPhoneRef.current?.value;
+      const firstName = inFirstNameRef.current?.value.trim();
+      const lastName = inLastNameRef.current?.value.trim();
+      const email = inEmailRef.current?.value.trim();
+      const phone = inPhoneRef.current?.value.trim();
 
       if (!firstName || !lastName || !email || !phone)
         return alert("Semua informasi user harus diisi");
@@ -101,22 +105,81 @@ export default function CheckoutPage() {
         transactionData,
       };
       console.log(paymentData);
+      const res = await apiCall.post(
+        "/transaction/create-transaction",
+        paymentData
+      );
+      setToken(res.data.token);
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    if (selectedVenueSlots.length === 0 || !selectedVenueSlots) {
-      alert("Anda belum booking slot venue");
-      router.replace("/");
-    }
+    const midtransUrl = "https://app.sandbox.midtrans.com/snap/snap.js"; // perlu diganti bila sudah ke production => cek di documentation FE Integration
+
+    const scriptTag = document.createElement("script");
+    scriptTag.src = midtransUrl;
+    scriptTag.type = "text/javascript";
+    scriptTag.setAttribute(
+      "data-client-key",
+      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ""
+    );
+    document.body.appendChild(scriptTag);
+
+    return () => {
+      document.body.removeChild(scriptTag);
+    };
   }, []);
 
+  // useEffect(() => {
+  //   calculateTransaction();
+  // }, []);
+
+  // useEffect(() => {
+  //   keepSlot();
+  // }, []);
+
   useEffect(() => {
-    keepSlot();
-    calculateTransaction();
-  }, []);
+    if (!token) return;
+    if (typeof window !== "undefined" && window.snap)
+      window.snap.pay(token, {
+        onSuccess: (result) => {
+          console.log("Pembayaran berhasil", result);
+          localStorage.setItem("Pembayaran", JSON.stringify(result));
+          // clearSlots();
+          // setToken("");
+          // setTimeout(() => {
+          //   router.replace("/");
+          // }, 200);
+        },
+        onPending: (result) => {
+          localStorage.setItem("Pembayaran", JSON.stringify(result));
+          setToken("");
+        },
+        onError: (error) => {
+          console.log(error);
+          alert("There is something wrong");
+          setToken("");
+        },
+        onClose: () => {
+          console.log("Anda belum menyelesaikan pembayaran!");
+          setToken("");
+          alert("Anda belum selesaikan pembayaran");
+        },
+      });
+  }, [token]);
+
+  useEffect(() => {
+    if (!selectedVenueSlots) return;
+    if (selectedVenueSlots.length === 0 || !selectedVenueSlots || token) {
+      router.replace("/");
+    }
+    setTimeout(() => {
+      keepSlot();
+      calculateTransaction();
+    }, 100);
+  }, [selectedVenueSlots]);
 
   return (
     <section className="px-40 py-10 bg-gray-200/20 min-h-screen">
@@ -268,7 +331,7 @@ export default function CheckoutPage() {
             </Button>
             <Button
               className=" w-1/2 text-[16px]  bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl cursor-pointer "
-              onClick={userVenuePayment}
+              onClick={createTransaction}
             >
               <CircleDollarSign className="size-5" /> Bayar Sekarang
             </Button>
