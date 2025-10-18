@@ -30,6 +30,8 @@ interface IBookingList {
 export default function BookingList({ open, setOpen }: IBookingList) {
   const router = useRouter();
   const { selectedVenueSlots, removeSlotBySlotId } = useVenueStore();
+
+  // keep slot aktif (selama 15 menit, bila lebih dari 15, maka clear interval dan redirect ke landing )
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent>

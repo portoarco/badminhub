@@ -38,6 +38,7 @@ export const useVenueStore = create(
     {
       name: "booked-slot",
       partialize: (state) => ({
+        ...state,
         selectedVenueSlots: state.selectedVenueSlots,
       }),
     }

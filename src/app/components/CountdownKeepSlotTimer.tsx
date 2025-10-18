@@ -1,10 +1,28 @@
 "use client";
 import { useEffect, useState } from "react";
-const COUNTDOWN_DURATION = 1 * 60 * 1000; //keep 1 menit
+import { useVenueStore } from "../store/venue-store";
+import { useRouter } from "next/navigation";
+import { apiCall } from "@/helper/apiCall";
+const COUNTDOWN_DURATION = 30 * 60 * 1000; //keep 30 menit
 const STORAGE_KEY = "cd-keep-slot";
 
 export default function CountdownKeepSlot() {
   const [timeLeft, setTimeLeft] = useState(0);
+  const { clearSlots, selectedVenueSlots } = useVenueStore();
+  const router = useRouter();
+
+  const removeSlotfromDb = async () => {
+    try {
+      const res = await apiCall.delete("/venue/remove-slot", {
+        data: selectedVenueSlots,
+      });
+      clearSlots();
+      if (!res) return alert("There is something wrong!");
+      router.replace("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     let startTime = localStorage.getItem(STORAGE_KEY);
@@ -23,6 +41,9 @@ export default function CountdownKeepSlot() {
         setTimeLeft(0);
         localStorage.removeItem(STORAGE_KEY);
         clearInterval(interval);
+        clearSlots();
+        removeSlotfromDb();
+        // router.replace("/");
       } else {
         setTimeLeft(Math.floor(remaining / 1000));
       }

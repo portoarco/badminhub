@@ -1,10 +1,15 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiCall } from "@/helper/apiCall";
+import { convertISOToTimeString } from "@/helper/convertISOtoRegularTime";
+import { convertDates } from "@/helper/convertIdnDates";
+import { formatRupiah } from "@/helper/formatRupiah";
 import {
   ArrowLeft,
   Calendar,
   CircleDollarSign,
+  CircleX,
   Clock,
   HandCoins,
   MapPin,
@@ -12,33 +17,56 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useVenueStore } from "../store/venue-store";
-import { convertISOToTimeString } from "@/helper/convertISOtoRegularTime";
-import { convertDates } from "@/helper/convertIdnDates";
-import CountdownKeepSlot from "../components/CountdownKeepSlotTimer";
-import { ISelectedVenueSlot } from "../types/venue";
-import { apiCall } from "@/helper/apiCall";
-import { useEffect, useState } from "react";
 import { ITransaction } from "../types/transaction";
-import { formatRupiah } from "@/helper/formatRupiah";
+import CountdownKeepSlot from "../components/CountdownKeepSlotTimer";
+import { useRouter } from "next/navigation";
+import { isEmailValid } from "@/helper/checkEmail";
 
 export default function CheckoutPage() {
-  const { selectedVenueSlots, removeSlotBySlotId } = useVenueStore();
+  const { selectedVenueSlots, clearSlots } = useVenueStore();
   const [transactionData, setTransactionData] = useState<ITransaction | null>(
     null
   );
 
-  // const keepSlot = async () => {
-  //   try {
-  //     const res = await apiCall.post("/venue/keep-slot", selectedVenueSlots);
-  //     if (!res) return alert("There is something wrong!");
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const router = useRouter();
+  const inFirstNameRef = useRef<HTMLInputElement>(null);
+  const inLastNameRef = useRef<HTMLInputElement>(null);
+  const inEmailRef = useRef<HTMLInputElement>(null);
+  const inPhoneRef = useRef<HTMLInputElement>(null);
+  const keepSlot = async () => {
+    try {
+      const res = await apiCall.post("/venue/keep-slot", selectedVenueSlots);
+      if (!res) return alert("There is something wrong!");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeSlots = async () => {
+    try {
+      const confirmation = window.confirm(
+        "Anda yakin ingin membatalkan booking?"
+      );
+      if (!confirmation) return;
+      const res = await apiCall.delete("/venue/remove-slot", {
+        data: selectedVenueSlots,
+      });
+      clearSlots();
+      if (!res) return alert("There is something wrong!");
+      router.replace("/");
+    } catch (error) {
+      console.log(error);
+      alert("There is something wrong!");
+    }
+  };
 
   const calculateTransaction = async () => {
-    const res = await apiCall.post("/transaction", selectedVenueSlots);
+    const res = await apiCall.post(
+      "/transaction/calculate",
+      selectedVenueSlots
+    );
     if (!res) return alert("Error");
     const trxData = res.data.data;
     console.log(trxData);
@@ -50,13 +78,46 @@ export default function CheckoutPage() {
     }
   };
 
-  // useEffect(() => {
-  //   keepSlot();
-  // }, []);
+  const userVenuePayment = async () => {
+    try {
+      const firstName = inFirstNameRef.current?.value;
+      const lastName = inLastNameRef.current?.value;
+      const email = inEmailRef.current?.value;
+      const phone = inPhoneRef.current?.value;
+
+      if (!firstName || !lastName || !email || !phone)
+        return alert("Semua informasi user harus diisi");
+      const checkEmail = isEmailValid(email);
+      if (!checkEmail) return alert("Email invalid");
+
+      const paymentData = {
+        slots: selectedVenueSlots,
+        user: {
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          phone: phone,
+        },
+        transactionData,
+      };
+      console.log(paymentData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
+    if (selectedVenueSlots.length === 0 || !selectedVenueSlots) {
+      alert("Anda belum booking slot venue");
+      router.replace("/");
+    }
+  }, []);
+
+  useEffect(() => {
+    keepSlot();
     calculateTransaction();
   }, []);
+
   return (
     <section className="px-40 py-10 bg-gray-200/20 min-h-screen">
       <div className="flex items-center justify-between">
@@ -128,21 +189,37 @@ export default function CheckoutPage() {
               <div className="flex w-full gap-5">
                 <div className="w-1/2">
                   <label className="text-sm">Nama Depan</label>
-                  <Input placeholder="John" />
+                  <Input
+                    placeholder="John"
+                    className="uppercase"
+                    ref={inFirstNameRef}
+                  />
                 </div>
                 <div className="w-1/2">
                   <label className="text-sm">Nama Belakang</label>
-                  <Input placeholder="Doe" />
+                  <Input
+                    placeholder="Doe"
+                    className="uppercase"
+                    ref={inLastNameRef}
+                  />
                 </div>
               </div>
               <div className="flex w-full gap-5 mt-5">
                 <div className="w-1/2">
                   <label className="text-sm">Email</label>
-                  <Input type="email" placeholder="johndoe@mail.com" />
+                  <Input
+                    type="email"
+                    placeholder="johndoe@mail.com"
+                    ref={inEmailRef}
+                  />
                 </div>
                 <div className="w-1/2">
                   <label className="text-sm">No.Telp/WA</label>
-                  <Input type="tel" placeholder="+621111222" />
+                  <Input
+                    type="number"
+                    placeholder="621111222"
+                    ref={inPhoneRef}
+                  />
                 </div>
               </div>
             </form>
@@ -180,9 +257,22 @@ export default function CheckoutPage() {
               <p>{formatRupiah(transactionData?.totalFixPrice ?? 0)}</p>
             </div>
           </section>
-          <Button className="w-full text-[16px]  bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-lg cursor-pointer ">
-            <CircleDollarSign className="size-5" /> Bayar Sekarang
-          </Button>
+          <div className="flex gap-x-5 ">
+            <Button
+              className=" rounded-xl p-4 cursor-pointer"
+              variant={"destructive"}
+              onClick={removeSlots}
+            >
+              <CircleX className="size-4" />
+              Batalkan Pemesanan
+            </Button>
+            <Button
+              className=" w-1/2 text-[16px]  bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl cursor-pointer "
+              onClick={userVenuePayment}
+            >
+              <CircleDollarSign className="size-5" /> Bayar Sekarang
+            </Button>
+          </div>
         </section>
       </div>
     </section>
