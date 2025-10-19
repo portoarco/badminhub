@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiCall } from "@/helper/apiCall";
+import { isEmailValid } from "@/helper/checkEmail";
 import { convertISOToTimeString } from "@/helper/convertISOtoRegularTime";
 import { convertDates } from "@/helper/convertIdnDates";
 import { formatRupiah } from "@/helper/formatRupiah";
@@ -13,16 +14,14 @@ import {
   Clock,
   HandCoins,
   MapPin,
-  Trash,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import CountdownKeepSlot from "../components/CountdownKeepSlotTimer";
 import { useVenueStore } from "../store/venue-store";
 import { ITransaction } from "../types/transaction";
-import CountdownKeepSlot from "../components/CountdownKeepSlotTimer";
-import { useRouter } from "next/navigation";
-import { isEmailValid } from "@/helper/checkEmail";
 
 export default function CheckoutPage() {
   const { selectedVenueSlots, clearSlots } = useVenueStore();
@@ -37,11 +36,11 @@ export default function CheckoutPage() {
   const inLastNameRef = useRef<HTMLInputElement>(null);
   const inEmailRef = useRef<HTMLInputElement>(null);
   const inPhoneRef = useRef<HTMLInputElement>(null);
+  //
 
   const keepSlot = async () => {
     try {
       const res = await apiCall.post("/venue/keep-slot", selectedVenueSlots);
-      console.log(res.data);
       if (!res) return alert("There is something wrong!");
     } catch (error) {
       console.log(error);
@@ -73,7 +72,7 @@ export default function CheckoutPage() {
     );
     if (!res) return alert("Error");
     const trxData = res.data.data;
-    console.log(trxData);
+    // console.log(trxData);
     setTransactionData(trxData);
     try {
     } catch (error) {
@@ -104,12 +103,36 @@ export default function CheckoutPage() {
         },
         transactionData,
       };
-      console.log(paymentData);
+      // console.log(paymentData);
       const res = await apiCall.post(
         "/transaction/create-transaction",
         paymentData
       );
       setToken(res.data.token);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const createSuccessBooking = async (trxData: any[]) => {
+    try {
+      const firstName = inFirstNameRef.current?.value.trim();
+      const lastName = inLastNameRef.current?.value.trim();
+      const email = inEmailRef.current?.value.trim();
+      const phone = inPhoneRef.current?.value.trim();
+
+      const payload = {
+        trxData,
+        slots: selectedVenueSlots,
+        firstName,
+        lastName,
+        email,
+        phone,
+      };
+
+      // console.log("data transaksi sukses:", payload);
+      const res = await apiCall.post("/transaction/create-bokpay", payload);
+      // console.log(res.data);
     } catch (error) {
       console.log(error);
     }
@@ -132,26 +155,19 @@ export default function CheckoutPage() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   calculateTransaction();
-  // }, []);
-
-  // useEffect(() => {
-  //   keepSlot();
-  // }, []);
-
   useEffect(() => {
     if (!token) return;
     if (typeof window !== "undefined" && window.snap)
       window.snap.pay(token, {
         onSuccess: (result) => {
-          console.log("Pembayaran berhasil", result);
+          // console.log("Pembayaran berhasil", result);
+          createSuccessBooking(result);
           localStorage.setItem("Pembayaran", JSON.stringify(result));
-          // clearSlots();
-          // setToken("");
-          // setTimeout(() => {
-          //   router.replace("/");
-          // }, 200);
+          clearSlots();
+          setToken("");
+          setTimeout(() => {
+            router.replace("/");
+          }, 200);
         },
         onPending: (result) => {
           localStorage.setItem("Pembayaran", JSON.stringify(result));
@@ -163,7 +179,6 @@ export default function CheckoutPage() {
           setToken("");
         },
         onClose: () => {
-          console.log("Anda belum menyelesaikan pembayaran!");
           setToken("");
           alert("Anda belum selesaikan pembayaran");
         },
@@ -182,16 +197,18 @@ export default function CheckoutPage() {
   }, [selectedVenueSlots]);
 
   return (
-    <section className="px-40 py-10 bg-gray-200/20 min-h-screen">
-      <div className="flex items-center justify-between">
+    <section className="md:p-10 p-5 bg-gray-200/20 min-h-screen">
+      <div className="flex max-sm:flex-col gap-5 items-center justify-between">
         <Image
           src="/assets/logo-tagline.png"
           alt="logo"
-          width={250}
-          height={250}
+          width={150}
+          height={150}
         />
-        <div>{/* <CountdownKeepSlot /> */}</div>
-        <h1 className="font-semibold text-2xl flex items-center gap-x-4">
+        {/* <div>
+          <CountdownKeepSlot />
+        </div> */}
+        <h1 className="font-semibold lg:text-2xl flex items-center gap-x-4">
           Checkout Page <HandCoins />
         </h1>
       </div>
@@ -205,10 +222,10 @@ export default function CheckoutPage() {
         </Link>
       </div>
 
-      <div className="flex w-full gap-x-5 ">
+      <div className="flex max-lg:flex-col w-full gap-x-5 ">
         <section
           id="order-details"
-          className=" mb-5 p-5 rounded-lg shadow-sm bg-white inset-shadow-xs  w-1/2 h-full"
+          className=" mb-5 p-5 rounded-lg shadow-sm bg-white inset-shadow-xs  lg:w-1/2 h-full"
         >
           <h1 className="text-xl font-medium"> Rincian Pemesanan</h1>
           <hr className="border-dashed my-2" />
@@ -220,7 +237,7 @@ export default function CheckoutPage() {
               >
                 <div>
                   <p className="text-sm font-medium">{cart.venueName}</p>
-                  <div className="flex gap-x-5 mt-1 text-sm">
+                  <div className="flex max-lg:flex-col  gap-x-5 mt-1 text-sm">
                     <p className="flex items-center gap-x-1">
                       <MapPin className="size-3" />
                       {cart.venueCity}
@@ -241,7 +258,7 @@ export default function CheckoutPage() {
             ))}
           </section>
         </section>
-        <section id="left-content" className="  w-1/2">
+        <section id="left-content" className="  lg:w-1/2">
           <section
             id="user-form"
             className="mb-5 p-5 rounded-lg shadow-sm inset-shadow-xs bg-white "
@@ -249,8 +266,8 @@ export default function CheckoutPage() {
             <h1 className="text-xl font-medium mb-3">Informasi Pemesan</h1>
             <hr className="border-dashed mb-2" />
             <form>
-              <div className="flex w-full gap-5">
-                <div className="w-1/2">
+              <div className="flex max-sm:flex-col w-full gap-5">
+                <div className="md:w-1/2">
                   <label className="text-sm">Nama Depan</label>
                   <Input
                     placeholder="John"
@@ -258,7 +275,7 @@ export default function CheckoutPage() {
                     ref={inFirstNameRef}
                   />
                 </div>
-                <div className="w-1/2">
+                <div className="md:w-1/2">
                   <label className="text-sm">Nama Belakang</label>
                   <Input
                     placeholder="Doe"
@@ -267,8 +284,8 @@ export default function CheckoutPage() {
                   />
                 </div>
               </div>
-              <div className="flex w-full gap-5 mt-5">
-                <div className="w-1/2">
+              <div className="flex max-sm:flex-col w-full gap-5 mt-5">
+                <div className="md:w-1/2">
                   <label className="text-sm">Email</label>
                   <Input
                     type="email"
@@ -276,7 +293,7 @@ export default function CheckoutPage() {
                     ref={inEmailRef}
                   />
                 </div>
-                <div className="w-1/2">
+                <div className="md:w-1/2">
                   <label className="text-sm">No.Telp/WA</label>
                   <Input
                     type="number"
@@ -294,18 +311,18 @@ export default function CheckoutPage() {
             <h1 className="text-xl font-medium">Rincian Pembayaran</h1>
             <hr className="border-dashed my-2" />
             <div className="flex flex-col gap-y-2">
-              <div className="flex justify-between text-sm">
-                <p>Biaya Sewa Lapangan</p>
+              <div className="flex items-center justify-between text-sm">
+                <p className="max-sm:text-xs">Biaya Sewa Lapangan</p>
                 <p>
                   {formatRupiah(transactionData?.totalVenuePriceFormula ?? 0)}
                 </p>
               </div>
-              <div className="flex justify-between text-sm">
-                <p>Biaya Administrasi</p>
+              <div className="flex items-center justify-between text-sm">
+                <p className="max-sm:text-xs">Biaya Administrasi</p>
                 <p>{formatRupiah(transactionData?.adminFee ?? 0)}</p>
               </div>
-              <div className="flex justify-between text-sm">
-                <p>
+              <div className="flex items-center justify-between text-sm">
+                <p className="max-sm:text-xs">
                   Biaya PPN{" "}
                   <span className="text-xs">
                     (10% Total Biaya Sewa Lapangan)
@@ -315,14 +332,14 @@ export default function CheckoutPage() {
               </div>
             </div>
             <hr className=" my-2" />
-            <div className="flex justify-between text-sm">
-              <p>Total Biaya</p>
+            <div className="flex items-center justify-between text-sm">
+              <p className="max-sm:text-xs">Total Biaya</p>
               <p>{formatRupiah(transactionData?.totalFixPrice ?? 0)}</p>
             </div>
           </section>
-          <div className="flex gap-x-5 ">
+          <div className="flex max-sm:flex-col gap-5 ">
             <Button
-              className=" rounded-xl p-4 cursor-pointer"
+              className=" rounded-lg p-4 cursor-pointer shadow-md md:w-1/3"
               variant={"destructive"}
               onClick={removeSlots}
             >
@@ -330,7 +347,7 @@ export default function CheckoutPage() {
               Batalkan Pemesanan
             </Button>
             <Button
-              className=" w-1/2 text-[16px]  bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl cursor-pointer "
+              className=" md:w-1/2 text-[14px]  bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-lg cursor-pointer shadow-md "
               onClick={createTransaction}
             >
               <CircleDollarSign className="size-5" /> Bayar Sekarang

@@ -7,6 +7,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { convertDates } from "@/helper/convertIdnDates";
 import { convertISOToTimeString } from "@/helper/convertISOtoRegularTime";
 import {
   ArchiveX,
@@ -18,9 +19,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useVenueStore } from "../store/venue-store";
-import { convertDates } from "@/helper/convertIdnDates";
-import { ISelectedVenueSlot } from "../types/venue";
-import { apiCall } from "@/helper/apiCall";
 
 interface IBookingList {
   open: boolean;
@@ -31,7 +29,6 @@ export default function BookingList({ open, setOpen }: IBookingList) {
   const router = useRouter();
   const { selectedVenueSlots, removeSlotBySlotId } = useVenueStore();
 
-  // keep slot aktif (selama 15 menit, bila lebih dari 15, maka clear interval dan redirect ke landing )
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent>
@@ -51,13 +48,13 @@ export default function BookingList({ open, setOpen }: IBookingList) {
               >
                 <div>
                   <p className="text-sm font-medium">{cart.venueName}</p>
-                  <div className="flex gap-x-5 mt-1 text-sm">
+                  <div className="flex  gap-x-5 mt-1 text-sm">
                     <p className="flex items-center gap-x-1">
                       <MapPin className="size-3" />
                       {cart.venueCity}
                     </p>
                   </div>
-                  <div className="flex gap-x-5 items-center text-sm">
+                  <div className="flex max-sm:flex-col gap-x-5 md:items-center text-sm">
                     <div id="booking-date">
                       <p className="flex items-center gap-1">
                         <Calendar className="size-3" />

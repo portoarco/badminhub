@@ -3,9 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatRupiah } from "@/helper/formatRupiah";
 import { ChevronDown, MapPin, Zap } from "lucide-react";
 import Image from "next/image";
-import { IVenue } from "../types/venue";
 import { useRouter } from "next/navigation";
-import { apiCall } from "@/helper/apiCall";
+import { IVenue } from "../types/venue";
 
 interface IMainContent {
   venueList: IVenue[];
@@ -23,7 +22,7 @@ export default function MainContent({ venueList }: IMainContent) {
         </Button>
       </section>
       <section id="venues-card" className="mt-10">
-        <div className="grid grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2  xl:grid-cols-4 gap-10">
           {venueList.map((venue, idx) => (
             <Card
               key={idx}
@@ -39,9 +38,15 @@ export default function MainContent({ venueList }: IMainContent) {
                 />
               </div>
 
-              <CardContent className="px-8 py-5">
-                <h1 className="text-xl font-semibold">{venue.name}</h1>
-                <div className="flex gap-1 items-center">
+              <CardContent className="md:px-8 md:py-5 p-5">
+                <h1 className="text-lg font-semibold max-lg:text-center">
+                  {venue.name}
+                </h1>
+                <p className="flex mt-3 gap-2 items-center text-gray-500">
+                  <MapPin className="size-4" />
+                  {venue.city}
+                </p>
+                <div className="flex mt-2 gap-1 items-center">
                   <Image
                     src="/assets/star.png"
                     alt="star"
@@ -49,17 +54,19 @@ export default function MainContent({ venueList }: IMainContent) {
                     height={1000}
                     className="size-6"
                   />
-                  <div className="text-sm mt-1 flex gap-2 ">
+                  <div className="text-sm mt-1 flex items-center  gap-2 ">
                     <p>{venue.rating?.toFixed(2) ?? "0.00"}</p>
-                    <p className="text-gray-500">({venue.reviewer}) Reviews</p>
-                    <p className="flex items-center text-gray-500">
+                    <p className="text-gray-500 text-xs">
+                      ({venue.reviewer}) Reviews
+                    </p>
+                    <p className=" hidden lg:flex  items-center text-gray-500">
                       <MapPin className="size-4" />
                       {venue.city}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-5">
+                <div className="flex max-lg:flex-col gap-y-2 items-center justify-between mt-5">
                   <div>
                     <p className=" text-xl font-semibold">
                       {formatRupiah(venue.price)}{" "}

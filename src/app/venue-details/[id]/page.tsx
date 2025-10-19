@@ -6,19 +6,18 @@ import Image from "next/image";
 import SlotPicker from "../components/slotPicker";
 
 interface IVenueDetailsPage {
-  params: { id: number };
+  params: Promise<{ id: number }>;
 }
 
 export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
-  const { id } = params;
+  const { id } = await params;
   const res = await apiCall.get(`/venue/${id}`);
-  console.log(res.data);
   const venueDetails: IVenue | undefined = res.data;
 
   return (
-    <section className="px-30 py-10 min-h-screen bg-gray-100/30">
+    <section className="md:px-30 md:py-10 p-5 min-h-screen bg-gray-100/30 relative -top-6">
       <section>
-        <div className="flex gap-10">
+        <div className="flex max-lg:flex-col gap-10">
           <div
             id="banner"
             className="relative w-full overflow-hidden rounded-xl"
@@ -32,7 +31,9 @@ export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
             />
           </div>
           <div id="venue-details" className="mt-5">
-            <h1 className="text-4xl font-semibold">{venueDetails?.name}</h1>
+            <h1 className="text-lg md:text-4xl font-semibold">
+              {venueDetails?.name}
+            </h1>
             <div className="flex gap-1 items-center mt-2">
               <Image
                 src="/assets/star.png"

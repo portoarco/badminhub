@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-300/20 w-full p-10 flex justify-between items-center">
+    <footer className="bg-gray-300/20 w-full p-10 flex max-sm:flex-col max-sm:gap-5 justify-between items-center">
       <div>
         <p className="text-gray-500">©2025 PT Badminton Hub Indonesia</p>
       </div>

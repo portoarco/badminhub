@@ -71,13 +71,11 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
     setDates(generateDates(new Date(selectedDate), 10));
   }, [date]);
 
-  // cek dari db apakah sudah terbooked atau belum
-
   return (
     <section>
       <h1 className="text-3xl font-medium"> Choose Your Time</h1>
       <section className="w-full mt-5 rounded-lg  inset-shadow-2xs shadow-md bg-white p-5">
-        <div className="flex gap-x-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6  gap-5">
           {dates.map((item) => (
             <button
               key={`${item.id}-${item.fullDate}`}
@@ -95,13 +93,13 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
               <span className="font-semibold">{item.dateText}</span>
             </button>
           ))}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col  gap-3 ">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   id="date"
-                  className=" h-full rounded-xl justify-between font-normal"
+                  className=" h-full max-lg:w-60  rounded-xl justify-between font-normal"
                 >
                   {date ? (
                     date.toLocaleDateString()
@@ -140,8 +138,27 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
         </div>
       </section>
       <section className="w-full mt-5 rounded-lg shadow-md bg-white p-5">
-        <div className="grid grid-cols-6 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-5">
           {timeSlots.map((slot) => {
+            // 🔹 pastikan time_slots adalah array sebelum dicek
+            const isBooked =
+              Array.isArray(venueData.time_slots) &&
+              venueData.time_slots?.some((ts: any) => {
+                const slotStartHour = slot.start_time.split(".")[0];
+                const dbStartHour = new Date(ts.start_time)
+                  .getUTCHours()
+                  .toString()
+                  .padStart(2, "0");
+                const dbDate = new Date(ts.start_time)
+                  .toISOString()
+                  .split("T")[0];
+                return (
+                  slotStartHour === dbStartHour &&
+                  dbDate === selectedDate &&
+                  ts.isBooked === true
+                );
+              });
+
             const isSelected = selectedVenueSlots.some(
               (s: any) => s.slotId === slot.id && s.date === selectedDate
             );
@@ -150,12 +167,15 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
               <button
                 key={`${slot.id}-${selectedDate}`}
                 className={`p-5 rounded-xl shadow-xs cursor-pointer transition-all
-                  ${
-                    isSelected
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 hover:bg-blue-100"
-                  }`}
+        ${
+          isBooked
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : isSelected
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 hover:bg-blue-100"
+        }`}
                 onClick={() =>
+                  !isBooked &&
                   chooseSlot(
                     slot.id,
                     venueData.id,
@@ -163,17 +183,16 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
                     slot.end_time
                   )
                 }
-                // disabled={slot.isBooked}
+                disabled={isBooked}
               >
                 <p
                   className={`text-sm mb-2 ${
-                    // slot.isBooked ? "text-gray-400" : "text-black"
-                    "text-black"
+                    isBooked ? "text-gray-400" : "text-black"
                   }`}
                 >
-                  {isSelected ? "Selected" : "Available"}
+                  {isBooked ? "Booked" : isSelected ? "Selected" : "Available"}
                 </p>
-                <p className="text-lg font-medium">
+                <p className="md:text-lg font-medium">
                   {slot.start_time} - {slot.end_time}
                 </p>
               </button>
