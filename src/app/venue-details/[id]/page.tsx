@@ -17,10 +17,10 @@ export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
   return (
     <section className="md:px-30 md:py-10 p-5 min-h-screen bg-gray-100/30 relative -top-6">
       <section>
-        <div className="flex max-lg:flex-col gap-10">
+        <div className="flex items-center max-lg:flex-col lg:gap-10">
           <div
             id="banner"
-            className="relative w-full overflow-hidden rounded-xl"
+            className="relative max-lg:w-full w-1/2 overflow-hidden rounded-xl"
           >
             <Image
               src={venueDetails?.banner ?? "/assets/fallback.jpg"}
@@ -31,7 +31,7 @@ export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
             />
           </div>
           <div id="venue-details" className="mt-5">
-            <h1 className="text-lg md:text-4xl font-semibold">
+            <h1 className="text-2xl md:text-4xl font-semibold">
               {venueDetails?.name}
             </h1>
             <div className="flex gap-1 items-center mt-2">
@@ -42,12 +42,12 @@ export default async function VenueDetailsPage({ params }: IVenueDetailsPage) {
                 height={1000}
                 className="size-7"
               />
-              <div className="text-md mt-1 flex gap-2 ">
+              <div className="text-md mt-1 flex items-center gap-2 ">
                 <p>{venueDetails?.rating?.toFixed(2)}</p>
-                <p className="text-gray-500">
+                <p className="text-gray-500 max-sm:text-sm">
                   ({venueDetails?.reviewer}) Reviews
                 </p>
-                <p className="flex items-center text-gray-500">
+                <p className="flex items-center text-gray-500 max-sm:text-sm ">
                   <MapPin className="size-4" />
                   {venueDetails?.city}
                 </p>

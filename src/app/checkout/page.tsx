@@ -205,9 +205,9 @@ export default function CheckoutPage() {
           width={150}
           height={150}
         />
-        {/* <div>
+        <div>
           <CountdownKeepSlot />
-        </div> */}
+        </div>
         <h1 className="font-semibold lg:text-2xl flex items-center gap-x-4">
           Checkout Page <HandCoins />
         </h1>
@@ -337,6 +337,15 @@ export default function CheckoutPage() {
               <p>{formatRupiah(transactionData?.totalFixPrice ?? 0)}</p>
             </div>
           </section>
+          <div id="payment-simulator" className="my-3">
+            <Link
+              href="https://simulator.sandbox.midtrans.com/"
+              className="hover:underline-offset-2 hover:underline"
+              target="blank"
+            >
+              <p>Klik disini untuk membayar pesanan</p>
+            </Link>
+          </div>
           <div className="flex max-sm:flex-col gap-5 ">
             <Button
               className=" rounded-lg p-4 cursor-pointer shadow-md md:w-1/3"

@@ -73,7 +73,7 @@ export default function SlotPicker({ venueData }: ISlotPicker) {
 
   return (
     <section>
-      <h1 className="text-3xl font-medium"> Choose Your Time</h1>
+      <h1 className="text-xl md:text-3xl font-medium"> Choose Your Time</h1>
       <section className="w-full mt-5 rounded-lg  inset-shadow-2xs shadow-md bg-white p-5">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6  gap-5">
           {dates.map((item) => (
